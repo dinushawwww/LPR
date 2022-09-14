@@ -29,7 +29,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="TabUsers">
      <attribute name="title">
@@ -154,6 +154,9 @@
          <pointsize>10</pointsize>
         </font>
        </property>
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
       </widget>
       <widget class="QLineEdit" name="LeRpasswd">
        <property name="geometry">
@@ -168,6 +171,9 @@
         <font>
          <pointsize>10</pointsize>
         </font>
+       </property>
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
        </property>
       </widget>
       <widget class="QLabel" name="LblDesc">
@@ -188,7 +194,7 @@
         <string>Description:</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="LeUname_4">
+      <widget class="QLineEdit" name="LeDesc">
        <property name="geometry">
         <rect>
          <x>130</x>
@@ -207,7 +213,7 @@
        <property name="geometry">
         <rect>
          <x>130</x>
-         <y>50</y>
+         <y>210</y>
          <width>171</width>
          <height>16</height>
         </rect>
@@ -236,7 +242,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Password:</string>
+        <string>Role:</string>
        </property>
       </widget>
       <widget class="QComboBox" name="CmbRole">
@@ -408,6 +414,9 @@
          <pointsize>10</pointsize>
         </font>
        </property>
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
       </widget>
       <widget class="QLabel" name="LblRpasswdM">
        <property name="geometry">
@@ -440,6 +449,9 @@
         <font>
          <pointsize>10</pointsize>
         </font>
+       </property>
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
        </property>
       </widget>
       <widget class="QPushButton" name="PbUpdate">
@@ -542,7 +554,7 @@
     </widget>
     <widget class="QWidget" name="TabAddLayout">
      <attribute name="title">
-      <string>Add Layouts</string>
+      <string>Add Layout(s)</string>
      </attribute>
      <widget class="QComboBox" name="CmbUserAl">
       <property name="geometry">
@@ -785,6 +797,95 @@
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="TabDeleteLayout">
+     <attribute name="title">
+      <string>Delete Layout</string>
+     </attribute>
+     <widget class="QLabel" name="LblUnameDLay">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>User name:</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="CmbUnameDlay">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>20</y>
+        <width>191</width>
+        <height>22</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="LblCurrentDLay">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>70</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Current Layout:</string>
+      </property>
+     </widget>
+     <widget class="QFrame" name="FrDLay">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>100</y>
+        <width>931</width>
+        <height>591</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>2</number>
+      </property>
+      <widget class="QLabel" name="LblDlay">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>931</width>
+         <height>591</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="PbDeleteLay">
+      <property name="geometry">
+       <rect>
+        <x>870</x>
+        <y>710</y>
+        <width>81</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Delete</string>
+      </property>
      </widget>
     </widget>
    </widget>

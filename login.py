@@ -10,14 +10,22 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import mariadb
-import sys
+import re
+import shutil
 
 class Ui_LoginWindow(object):
 
     def Login(self):
+        #self.window = QtWidgets.QMainWindow()
+        #from Management import Ui_ManagementWIndow
+        #self.ui = Ui_ManagementWIndow()
+        #self.ui.setupUi(self.window)
+        #LoginWindow.hide()
+        #self.window.show()
         svr = self.LeServer.text()
         uname = self.LeUname.text()
         passwd = self.LePasswd.text()
+        #print(svr, uname, passwd)
         
         try:
             connection = mariadb.connect(
@@ -30,25 +38,43 @@ class Ui_LoginWindow(object):
         except mariadb.Error as e:
             self.LeMessage.setText("")
             self.LeMessage.setText("Connection to the server failed")
+
         else:
             self.LeMessage.setText("Connected to server..")
             
             cursor = connection.cursor()
-            query = f"SELECT * FROM Users WHERE uname='{uname}' AND passwd='{passwd}'"
+            query = f"SELECT * FROM Users WHERE uname='{uname}' AND password='{passwd}'"
             cursor.execute(query)
             if not cursor.fetchone():
                 self.LeMessage.setText("")
                 self.LeMessage.setText("User name or password invalid")
             else:
-                self.LeMessage.setText("User found")
+                self.LeMessage.setText("Loading Configurations..")
+                with open("Management.py", "r") as sources:
+                    lines = sources.readlines()
+                with open("Management.py", "w") as sources:
+                    for line in lines:
+                        sources.write(re.sub(r'127.0.0.2', str(svr), line))
+
+                from Management import Ui_ManagementWIndow
+                self.window = QtWidgets.QMainWindow()
+                self.ui = Ui_ManagementWIndow()
+                self.ui.setupUi(self.window)
+                LoginWindow.hide()
+                self.window.show()
 
     def Cancel(self):
         sys.exit()
+
 
     def setupUi(self, LoginWindow):
         LoginWindow.setObjectName("LoginWindow")
         LoginWindow.setWindowModality(QtCore.Qt.NonModal)
         LoginWindow.resize(344, 406)
+        LoginWindow.setMaximumHeight(406)
+        LoginWindow.setMaximumWidth(344)
+        LoginWindow.setMinimumHeight(406)
+        LoginWindow.setMinimumWidth(344)
         self.centralwidget = QtWidgets.QWidget(LoginWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.LblServer = QtWidgets.QLabel(self.centralwidget)
@@ -69,41 +95,31 @@ class Ui_LoginWindow(object):
         font.setPointSize(10)
         self.LblPasswd.setFont(font)
         self.LblPasswd.setObjectName("LblPasswd")
-
         self.LeServer = QtWidgets.QLineEdit(self.centralwidget)
         self.LeServer.setGeometry(QtCore.QRect(70, 130, 191, 20))
         self.LeServer.setObjectName("LeServer")
-
         self.LeUname = QtWidgets.QLineEdit(self.centralwidget)
         self.LeUname.setGeometry(QtCore.QRect(70, 190, 191, 20))
         self.LeUname.setObjectName("LeUname")
-
         self.LePasswd = QtWidgets.QLineEdit(self.centralwidget)
         self.LePasswd.setGeometry(QtCore.QRect(70, 250, 191, 20))
         self.LePasswd.setObjectName("LePasswd")
-
         self.PbCancel = QtWidgets.QPushButton(self.centralwidget)
         self.PbCancel.setGeometry(QtCore.QRect(170, 300, 75, 23))
         self.PbCancel.setObjectName("PbCancel")
         self.PbCancel.clicked.connect(self.Cancel)
-        
         self.PbConnect = QtWidgets.QPushButton(self.centralwidget)
         self.PbConnect.setGeometry(QtCore.QRect(90, 300, 75, 23))
         self.PbConnect.setObjectName("PbConnect")
         self.PbConnect.clicked.connect(self.Login)
-        
         self.LeMessage = QtWidgets.QLabel(self.centralwidget)
         self.LeMessage.setGeometry(QtCore.QRect(30, 340, 281, 21))
-
         font = QtGui.QFont()
         font.setPointSize(10)
         self.LeMessage.setFont(font)
         self.LeMessage.setText("")
         self.LeMessage.setAlignment(QtCore.Qt.AlignCenter)
         self.LeMessage.setObjectName("LeMessage")
-
-
-
         LoginWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(LoginWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 344, 21))
@@ -124,6 +140,7 @@ class Ui_LoginWindow(object):
         self.LblPasswd.setText(_translate("LoginWindow", "Password:"))
         self.PbCancel.setText(_translate("LoginWindow", "Cancel"))
         self.PbConnect.setText(_translate("LoginWindow", "Connect"))
+
 
 if __name__ == "__main__":
     import sys

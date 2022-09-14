@@ -9,12 +9,94 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QPixmap
+import sys
+import mariadb
 
+connection = mariadb.connect(
+            host= '127.0.0.1',
+            user='root',
+            passwd='redhat',
+            port= 3306,
+            database='lpr',
+        )
 
 class Ui_ManagementWIndow(object):
+    def AddUser(self):
+        txtUsername = self.LeUname.text()
+        txtDesc = self.LeDesc.text()
+        txtRole = self.CmbRole.currentText()
+        txtPassword = self.LePasswd.text()
+        txtRepassword = self.LeRpasswd.text()
+        if txtUsername == "" or txtDesc == "" or txtPassword == "" or txtRepassword == "":
+            self.LblMessage.setText("Fields can not be empty")
+            
+        elif txtPassword != txtRepassword:
+            self.LblMessage.setText("Password does not match")
+            self.LePasswd.setText("")
+            self.LeRpasswd.setText("")
+        else:
+            cursor = connection.cursor()
+            query = f"INSERT INTO users (uname, description, password, role) VALUES ('{txtUsername}', '{txtDesc}', '{txtPassword}', '{txtRole}')"
+            cursor.execute(query)
+            connection.commit()
+            self.LeUname.setText("")
+            self.LeDesc.setText("")
+            self.LePasswd.setText("")
+            self.LeRpasswd.setText("")
+            self.CmbUsers.clear()
+            self.CmbRusers.clear()
+
+            cursor = connection.cursor()
+            query = f"SELECT uname FROM Users"
+            cursor.execute(query)
+            myresult = list(cursor.fetchall())
+            usr_list = []
+            for data in myresult:
+                if data[0] == "admin":
+                    pass
+                else:
+                    usr_list.append(data[0])
+            self.CmbUsers.addItems(usr_list)
+            self.CmbRusers.addItems(usr_list)
+
+    def ModUser(self):
+        txtPassword = self.LePasswdM.text()
+        txtRepassword = self.LeRpasswdM.text()
+        txtUsername = self.CmbUsers.currentText()
+
+        cursor = connection.cursor()
+        query = f"UPDATE users SET password = '{txtPassword}' WHERE uname = '{txtUsername}'"
+        cursor.execute(query)
+        connection.commit()
+
+        self.LePasswdM.setText("")
+        self.LeRpasswdM.setText("")
+
+    def DeleteUser(self):
+        txtUsername = self.CmbRusers.currentText()
+        cursor = connection.cursor()
+        query = f"DELETE FROM users WHERE uname = '{txtUsername}'"
+        cursor.execute(query)
+        connection.commit()
+        self.CmbUsers.clear()
+        self.CmbRusers.clear()
+        usr_list = []
+            for data in myresult:
+                if data[0] == "admin":
+                    pass
+                else:
+                    usr_list.append(data[0])
+            self.CmbUsers.addItems(usr_list)
+            self.CmbRusers.addItems(usr_list)
+
     def setupUi(self, ManagementWIndow):
         ManagementWIndow.setObjectName("ManagementWIndow")
         ManagementWIndow.resize(981, 815)
+        ManagementWIndow.setMaximumWidth(981)
+        ManagementWIndow.setMaximumHeight(815)
+        ManagementWIndow.setMinimumWidth(981)
+        ManagementWIndow.setMinimumHeight(815)
         self.centralwidget = QtWidgets.QWidget(ManagementWIndow)
         self.centralwidget.setObjectName("centralwidget")
         self.MgtTab = QtWidgets.QTabWidget(self.centralwidget)
@@ -55,6 +137,7 @@ class Ui_ManagementWIndow(object):
         font.setPointSize(10)
         self.PbAdd.setFont(font)
         self.PbAdd.setObjectName("PbAdd")
+        self.PbAdd.clicked.connect(self.AddUser)
         self.LeUname = QtWidgets.QLineEdit(self.FmCusers)
         self.LeUname.setGeometry(QtCore.QRect(130, 20, 171, 20))
         font = QtGui.QFont()
@@ -66,12 +149,14 @@ class Ui_ManagementWIndow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.LePasswd.setFont(font)
+        self.LePasswd.setEchoMode(QtWidgets.QLineEdit.Password)
         self.LePasswd.setObjectName("LePasswd")
         self.LeRpasswd = QtWidgets.QLineEdit(self.FmCusers)
         self.LeRpasswd.setGeometry(QtCore.QRect(130, 180, 171, 20))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.LeRpasswd.setFont(font)
+        self.LeRpasswd.setEchoMode(QtWidgets.QLineEdit.Password)
         self.LeRpasswd.setObjectName("LeRpasswd")
         self.LblDesc = QtWidgets.QLabel(self.FmCusers)
         self.LblDesc.setGeometry(QtCore.QRect(10, 60, 81, 16))
@@ -79,14 +164,14 @@ class Ui_ManagementWIndow(object):
         font.setPointSize(10)
         self.LblDesc.setFont(font)
         self.LblDesc.setObjectName("LblDesc")
-        self.LeUname_4 = QtWidgets.QLineEdit(self.FmCusers)
-        self.LeUname_4.setGeometry(QtCore.QRect(130, 60, 171, 20))
+        self.LeDesc = QtWidgets.QLineEdit(self.FmCusers)
+        self.LeDesc.setGeometry(QtCore.QRect(130, 60, 171, 20))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.LeUname_4.setFont(font)
-        self.LeUname_4.setObjectName("LeUname_4")
+        self.LeDesc.setFont(font)
+        self.LeDesc.setObjectName("LeDesc")
         self.LblMessage = QtWidgets.QLabel(self.FmCusers)
-        self.LblMessage.setGeometry(QtCore.QRect(130, 50, 171, 16))
+        self.LblMessage.setGeometry(QtCore.QRect(130, 210, 171, 16))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.LblMessage.setFont(font)
@@ -103,6 +188,8 @@ class Ui_ManagementWIndow(object):
         self.CmbRole.setToolTip("")
         self.CmbRole.setCurrentText("")
         self.CmbRole.setObjectName("CmbRole")
+        role_list = ["Administrator", "Operator"]
+        self.CmbRole.addItems(role_list)
         self.LblUcreate = QtWidgets.QLabel(self.TabUsers)
         self.LblUcreate.setGeometry(QtCore.QRect(10, 10, 101, 16))
         font = QtGui.QFont()
@@ -127,24 +214,26 @@ class Ui_ManagementWIndow(object):
         font.setPointSize(10)
         self.CmbUsers.setFont(font)
         self.CmbUsers.setObjectName("CmbUsers")
+        
+        cursor = connection.cursor()
+        query = f"SELECT uname FROM Users"
+        cursor.execute(query)
+        myresult = list(cursor.fetchall())
+        usr_list = []
+        for data in myresult:
+            
+            if data[0] == "admin":
+                pass
+            else:
+                usr_list.append(data[0])
+        self.CmbUsers.addItems(usr_list)
         self.LblUnameM = QtWidgets.QLabel(self.FmMusers)
         self.LblUnameM.setGeometry(QtCore.QRect(10, 20, 111, 21))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.LblUnameM.setFont(font)
         self.LblUnameM.setObjectName("LblUnameM")
-        self.LblDescM = QtWidgets.QLabel(self.FmMusers)
-        self.LblDescM.setGeometry(QtCore.QRect(10, 60, 111, 21))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.LblDescM.setFont(font)
-        self.LblDescM.setObjectName("LblDescM")
-        self.LeDescM = QtWidgets.QLineEdit(self.FmMusers)
-        self.LeDescM.setGeometry(QtCore.QRect(100, 60, 161, 20))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.LeDescM.setFont(font)
-        self.LeDescM.setObjectName("LeDescM")
+       
         self.LblPasswdM = QtWidgets.QLabel(self.FmMusers)
         self.LblPasswdM.setGeometry(QtCore.QRect(10, 100, 111, 21))
         font = QtGui.QFont()
@@ -156,6 +245,7 @@ class Ui_ManagementWIndow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.LePasswdM.setFont(font)
+        self.LePasswdM.setEchoMode(QtWidgets.QLineEdit.Password)
         self.LePasswdM.setObjectName("LePasswdM")
         self.LblRpasswdM = QtWidgets.QLabel(self.FmMusers)
         self.LblRpasswdM.setGeometry(QtCore.QRect(10, 140, 111, 21))
@@ -168,10 +258,12 @@ class Ui_ManagementWIndow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.LeRpasswdM.setFont(font)
+        self.LeRpasswdM.setEchoMode(QtWidgets.QLineEdit.Password)
         self.LeRpasswdM.setObjectName("LeRpasswdM")
         self.PbUpdate = QtWidgets.QPushButton(self.FmMusers)
         self.PbUpdate.setGeometry(QtCore.QRect(350, 180, 75, 23))
         self.PbUpdate.setObjectName("PbUpdate")
+        self.PbUpdate.clicked.connect(self.ModUser)
         self.LblDelete = QtWidgets.QLabel(self.TabUsers)
         self.LblDelete.setGeometry(QtCore.QRect(10, 340, 101, 16))
         font = QtGui.QFont()
@@ -193,12 +285,14 @@ class Ui_ManagementWIndow(object):
         self.CmbRusers = QtWidgets.QComboBox(self.FmRusers)
         self.CmbRusers.setGeometry(QtCore.QRect(90, 20, 181, 22))
         self.CmbRusers.setObjectName("CmbRusers")
+        self.CmbRusers.addItems(usr_list)
         self.PbDelete = QtWidgets.QPushButton(self.FmRusers)
         self.PbDelete.setGeometry(QtCore.QRect(300, 90, 75, 23))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.PbDelete.setFont(font)
         self.PbDelete.setObjectName("PbDelete")
+        self.PbDelete.clicked.connect(self.DeleteUser)
         self.MgtTab.addTab(self.TabUsers, "")
         self.TabAddLayout = QtWidgets.QWidget()
         self.TabAddLayout.setObjectName("TabAddLayout")
@@ -214,6 +308,9 @@ class Ui_ManagementWIndow(object):
         self.CmbLayout = QtWidgets.QComboBox(self.TabAddLayout)
         self.CmbLayout.setGeometry(QtCore.QRect(100, 70, 111, 22))
         self.CmbLayout.setObjectName("CmbLayout")
+        layout_list = ["1X1", "1x2", "2x2", "2X3"]
+        self.CmbLayout.addItems(layout_list)
+        self.CmbLayout.setToolTip("Col(s) X Row(s)")
         self.LblPreview = QtWidgets.QLabel(self.TabAddLayout)
         self.LblPreview.setGeometry(QtCore.QRect(10, 120, 71, 20))
         self.LblPreview.setObjectName("LblPreview")
@@ -227,9 +324,11 @@ class Ui_ManagementWIndow(object):
         self.FmPreImageAdd.setLineWidth(2)
         self.FmPreImageAdd.setObjectName("FmPreImageAdd")
         self.LblPreImageAdd = QtWidgets.QLabel(self.FmPreImageAdd)
-        self.LblPreImageAdd.setGeometry(QtCore.QRect(10, 10, 891, 541))
+        self.LblPreImageAdd.setGeometry(QtCore.QRect(10,5,891, 541))
         self.LblPreImageAdd.setAlignment(QtCore.Qt.AlignCenter)
         self.LblPreImageAdd.setObjectName("LblPreImageAdd")
+        self.pixmap = QPixmap('1-2.jpg')
+        self.LblPreImageAdd.setPixmap(self.pixmap)
         self.MgtTab.addTab(self.TabAddLayout, "")
         self.TabConfigLayout = QtWidgets.QWidget()
         self.TabConfigLayout.setObjectName("TabConfigLayout")
@@ -268,6 +367,31 @@ class Ui_ManagementWIndow(object):
         self.LblImagePreConfig.setAlignment(QtCore.Qt.AlignCenter)
         self.LblImagePreConfig.setObjectName("LblImagePreConfig")
         self.MgtTab.addTab(self.TabConfigLayout, "")
+        self.TabDeleteLayout = QtWidgets.QWidget()
+        self.TabDeleteLayout.setObjectName("TabDeleteLayout")
+        self.LblUnameDLay = QtWidgets.QLabel(self.TabDeleteLayout)
+        self.LblUnameDLay.setGeometry(QtCore.QRect(20, 20, 91, 21))
+        self.LblUnameDLay.setObjectName("LblUnameDLay")
+        self.CmbUnameDlay = QtWidgets.QComboBox(self.TabDeleteLayout)
+        self.CmbUnameDlay.setGeometry(QtCore.QRect(100, 20, 191, 22))
+        self.CmbUnameDlay.setObjectName("CmbUnameDlay")
+        self.LblCurrentDLay = QtWidgets.QLabel(self.TabDeleteLayout)
+        self.LblCurrentDLay.setGeometry(QtCore.QRect(20, 70, 91, 21))
+        self.LblCurrentDLay.setObjectName("LblCurrentDLay")
+        self.FrDLay = QtWidgets.QFrame(self.TabDeleteLayout)
+        self.FrDLay.setGeometry(QtCore.QRect(20, 100, 931, 591))
+        self.FrDLay.setFrameShape(QtWidgets.QFrame.Box)
+        self.FrDLay.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.FrDLay.setLineWidth(2)
+        self.FrDLay.setObjectName("FrDLay")
+        self.LblDlay = QtWidgets.QLabel(self.FrDLay)
+        self.LblDlay.setGeometry(QtCore.QRect(0, 0, 931, 591))
+        self.LblDlay.setAlignment(QtCore.Qt.AlignCenter)
+        self.LblDlay.setObjectName("LblDlay")
+        self.PbDeleteLay = QtWidgets.QPushButton(self.TabDeleteLayout)
+        self.PbDeleteLay.setGeometry(QtCore.QRect(870, 710, 81, 23))
+        self.PbDeleteLay.setObjectName("PbDeleteLay")
+        self.MgtTab.addTab(self.TabDeleteLayout, "")
         ManagementWIndow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(ManagementWIndow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 981, 21))
@@ -289,11 +413,11 @@ class Ui_ManagementWIndow(object):
         self.LblRpasswd.setText(_translate("ManagementWIndow", "Re type password:"))
         self.PbAdd.setText(_translate("ManagementWIndow", "Add"))
         self.LblDesc.setText(_translate("ManagementWIndow", "Description:"))
-        self.LblRole.setText(_translate("ManagementWIndow", "Password:"))
+        self.LblRole.setText(_translate("ManagementWIndow", "Role:"))
         self.LblUcreate.setText(_translate("ManagementWIndow", "Create User(s):"))
         self.LblCPasswd.setText(_translate("ManagementWIndow", "Modify User:"))
         self.LblUnameM.setText(_translate("ManagementWIndow", "User name:"))
-        self.LblDescM.setText(_translate("ManagementWIndow", "Description:"))
+        
         self.LblPasswdM.setText(_translate("ManagementWIndow", "Password:"))
         self.LblRpasswdM.setText(_translate("ManagementWIndow", "Password:"))
         self.PbUpdate.setText(_translate("ManagementWIndow", "Update"))
@@ -305,8 +429,8 @@ class Ui_ManagementWIndow(object):
         self.LblLayout.setText(_translate("ManagementWIndow", "Layout:"))
         self.LblPreview.setText(_translate("ManagementWIndow", "Preview:"))
         self.PbSetLayout.setText(_translate("ManagementWIndow", "Set"))
-        self.LblPreImageAdd.setText(_translate("ManagementWIndow", "PreImage"))
-        self.MgtTab.setTabText(self.MgtTab.indexOf(self.TabAddLayout), _translate("ManagementWIndow", "Add Layouts"))
+        #self.LblPreImageAdd.setText(_translate("ManagementWIndow", "PreImage"))
+        self.MgtTab.setTabText(self.MgtTab.indexOf(self.TabAddLayout), _translate("ManagementWIndow", "Add Layout(s)"))
         self.LblUnameCLay.setText(_translate("ManagementWIndow", "User name:"))
         self.LblLoc.setText(_translate("ManagementWIndow", "Location:"))
         self.LblCamera.setText(_translate("ManagementWIndow", "Camera:"))
@@ -314,6 +438,11 @@ class Ui_ManagementWIndow(object):
         self.LblPreLayCon.setText(_translate("ManagementWIndow", "Preview:"))
         self.LblImagePreConfig.setText(_translate("ManagementWIndow", "TextLabel"))
         self.MgtTab.setTabText(self.MgtTab.indexOf(self.TabConfigLayout), _translate("ManagementWIndow", "Configure Layout"))
+        self.LblUnameDLay.setText(_translate("ManagementWIndow", "User name:"))
+        self.LblCurrentDLay.setText(_translate("ManagementWIndow", "Current Layout:"))
+        self.LblDlay.setText(_translate("ManagementWIndow", "TextLabel"))
+        self.PbDeleteLay.setText(_translate("ManagementWIndow", "Delete"))
+        self.MgtTab.setTabText(self.MgtTab.indexOf(self.TabDeleteLayout), _translate("ManagementWIndow", "Delete Layout"))
 
 
 if __name__ == "__main__":
